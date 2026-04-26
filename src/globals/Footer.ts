@@ -1,0 +1,22 @@
+import type { GlobalConfig } from 'payload'
+
+export const Footer: GlobalConfig = {
+  slug: 'footer',
+  fields: [
+    {
+      name: 'columns',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text' },
+        {
+          name: 'links',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'link', type: 'text' },
+          ],
+        },
+      ],
+    },
+  ],
+}
