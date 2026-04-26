@@ -30,6 +30,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     components: {
+      Nav: '@/components/AdminSidebar#AdminSidebar',
       views: {
         dashboard: {
           Component: '@/components/Dashboard#Dashboard',
