@@ -28,6 +28,9 @@
       ],
       "@payload-config": [
         "./src/payload.config.ts"
+      ],
+      "lucide-react": [
+        "./src/components/lucide-react"
       ]
     },
     "target": "ES2022"
