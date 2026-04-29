@@ -52,7 +52,9 @@ export const AdminSidebar = () => {
   const [collapsed, setCollapsed] = useState(false)
 
   const activeItem = useMemo(
-    () => navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label,
+    () =>
+      navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+        ?.label,
     [pathname],
   )
 
@@ -60,11 +62,13 @@ export const AdminSidebar = () => {
     <aside
       className={cn(
         'twp sticky top-0 z-20 flex h-screen shrink-0 flex-col border-r border-border bg-card text-card-foreground transition-all duration-200',
-        collapsed ? 'w-[4.5rem]' : 'w-72',
+        collapsed ? 'w-18' : 'w-72',
       )}
     >
       <div className="flex items-center justify-between border-b border-border px-3 py-3">
-        <div className={cn('flex items-center gap-2 overflow-hidden', collapsed && 'justify-center')}>
+        <div
+          className={cn('flex items-center gap-2 overflow-hidden', collapsed && 'justify-center')}
+        >
           <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <PanelLeft className="size-4" />
           </div>
@@ -98,7 +102,9 @@ export const AdminSidebar = () => {
                   className={cn(
                     'flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors',
                     collapsed && 'justify-center',
-                    isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-accent hover:text-accent-foreground',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-accent hover:text-accent-foreground',
                   )}
                   href={item.href}
                   title={collapsed ? item.label : undefined}
@@ -124,7 +130,9 @@ export const AdminSidebar = () => {
           <LogOut className="size-4" />
           {!collapsed && <span>Logout</span>}
         </a>
-        {!collapsed && activeItem ? <p className="mt-2 px-2 text-xs text-muted-foreground">Current: {activeItem}</p> : null}
+        {!collapsed && activeItem ? (
+          <p className="mt-2 px-2 text-xs text-muted-foreground">Current: {activeItem}</p>
+        ) : null}
       </div>
     </aside>
   )
