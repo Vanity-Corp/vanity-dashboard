@@ -91,3 +91,11 @@
 @layer utilities {
   @import 'tailwindcss/utilities.css';
 }
+
+/* Hide Payload legacy nav toggle/buttons when using custom shadcn sidebar */
+.nav-toggler,
+.template-default__nav-toggler,
+#nav-toggler,
+button[aria-label='Toggle Navigation'] {
+  display: none !important;
+}

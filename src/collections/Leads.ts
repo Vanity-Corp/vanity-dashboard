@@ -2,20 +2,40 @@ import type { CollectionConfig } from 'payload'
 
 export const Leads: CollectionConfig = {
   slug: 'leads',
+  labels: {
+    singular: 'Email',
+    plural: 'Emails',
+  },
+  admin: {
+    useAsTitle: 'email',
+    defaultColumns: ['name', 'email', 'type', 'status', 'createdAt'],
+  },
   fields: [
-    { name: 'name', type: 'text' },
-    { name: 'email', type: 'text' },
-    { name: 'phone', type: 'text' },
-    { name: 'message', type: 'textarea' },
+    { name: 'name', type: 'text', label: 'Nom' },
+    { name: 'email', type: 'email', label: 'Email', required: true },
+    { name: 'phone', type: 'text', label: 'Téléphone' },
+    { name: 'message', type: 'textarea', label: 'Message' },
     {
       name: 'type',
       type: 'select',
-      options: ['contact', 'quote'],
+      label: 'Type',
+      options: [
+        { label: 'Contact', value: 'contact' },
+        { label: 'Devis', value: 'quote' },
+      ],
+      defaultValue: 'contact',
     },
     {
       name: 'status',
       type: 'select',
-      options: ['new', 'in-progress', 'closed'],
+      label: 'Statut',
+      options: [
+        { label: 'Nouveau', value: 'new' },
+        { label: 'Envoyé', value: 'sent' },
+        { label: 'Échec', value: 'failed' },
+        { label: 'En cours', value: 'in-progress' },
+        { label: 'Clos', value: 'closed' },
+      ],
       defaultValue: 'new',
     },
   ],
