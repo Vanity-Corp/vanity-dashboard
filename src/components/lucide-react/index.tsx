@@ -32,10 +32,10 @@ export const PanelLeft = createIcon(
 
 export const LayoutDashboard = createIcon(
   <>
-    <rect x="3" y="3" width="7" height="7" rx="1" />
-    <rect x="14" y="3" width="7" height="5" rx="1" />
-    <rect x="14" y="12" width="7" height="9" rx="1" />
-    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <rect width="7" height="9" x="3" y="3" rx="1" />
+    <rect width="7" height="5" x="14" y="3" rx="1" />
+    <rect width="7" height="9" x="14" y="12" rx="1" />
+    <rect width="7" height="5" x="3" y="16" rx="1" />
   </>,
 )
 
@@ -100,21 +100,12 @@ export const Inbox = createIcon(
 
 export const CalendarClock = createIcon(
   <>
-    <path d="M21 7.5V6a2 2 0 0 0-2-2h-1V2" />
-    <path d="M6 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h7" />
-    <path d="M3 10h18" />
-    <path d="M8 2v2" />
-    <circle cx="18" cy="18" r="4" />
-    <path d="M18 16.5v2.5l1.5 1" />
-  </>,
-)
-
-export const Newspaper = createIcon(
-  <>
-    <path d="M4 6h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
-    <path d="M8 10h8" />
-    <path d="M8 14h8" />
-    <path d="M8 18h5" />
+    <path d="M16 14v2.2l1.6 1" />
+    <path d="M16 2v4" />
+    <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" />
+    <path d="M3 10h5" />
+    <path d="M8 2v4" />
+    <circle cx="16" cy="16" r="6" />
   </>,
 )
 
@@ -144,5 +135,51 @@ export const LogOut = createIcon(
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <path d="M16 17l5-5-5-5" />
     <path d="M21 12H9" />
+  </>,
+)
+export const Bell = createIcon(
+  <>
+    <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+    <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+  </>,
+)
+
+export const PanelTop = createIcon(
+  <>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M3 9h18" />
+  </>,
+)
+
+export const Newspaper = createIcon(
+  <>
+    <path d="M15 18h-5" />
+    <path d="M18 14h-8" />
+    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" />
+    <rect width="8" height="4" x="10" y="6" rx="1" />
+  </>,
+)
+
+export const Wallet = createIcon(
+  <>
+    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+  </>,
+)
+
+export const Mail = createIcon(
+  <>
+    <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+  </>,
+)
+
+export const Images = createIcon(
+  <>
+    <path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" />
+    <path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" />
+    <circle cx="13" cy="7" r="1" fill="currentColor" />
+    <rect x="8" y="2" width="14" height="14" rx="2" />
   </>,
 )
