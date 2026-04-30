@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) ?? ['*']
 
@@ -17,6 +18,7 @@ export const corsHeaders = (origin?: string | null): Record<string, string> => {
   }
 }
 
+// ✅ FONCTION MANQUANTE À AJOUTER
 export const optionsResponse = (origin?: string | null) =>
   new NextResponse(null, { status: 204, headers: corsHeaders(origin) })
 
@@ -37,19 +39,18 @@ export const resendSendEmail = async ({
     throw new Error('RESEND_API_KEY is missing')
   }
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ from, to, subject, html }),
+  const resend = new Resend(apiKey)
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: Array.isArray(to) ? to : [to],
+    subject,
+    html,
   })
 
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`Resend error ${response.status}: ${text}`)
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`)
   }
 
-  return response.json()
+  return data
 }
