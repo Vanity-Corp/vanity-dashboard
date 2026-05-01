@@ -75,6 +75,7 @@ export interface Config {
     'team-members': TeamMember;
     'pricing-packages': PricingPackage;
     leads: Lead;
+    'quote-requests': QuoteRequest;
     'studio-bookings': StudioBooking;
     articles: Article;
     media: Media;
@@ -93,6 +94,7 @@ export interface Config {
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     'pricing-packages': PricingPackagesSelect<false> | PricingPackagesSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     'studio-bookings': StudioBookingsSelect<false> | StudioBookingsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -458,11 +460,33 @@ export interface TeamMember {
 export interface Lead {
   id: number;
   name?: string | null;
-  email?: string | null;
+  email: string;
   phone?: string | null;
   message?: string | null;
   type?: ('contact' | 'quote') | null;
-  status?: ('new' | 'in-progress' | 'closed') | null;
+  status?: ('new' | 'sent' | 'failed' | 'in-progress' | 'closed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests".
+ */
+export interface QuoteRequest {
+  id: number;
+  name?: string | null;
+  email: string;
+  phone?: string | null;
+  projectType?: string | null;
+  budget?: string | null;
+  message?: string | null;
+  features?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('new' | 'sent' | 'failed') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -565,6 +589,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'quote-requests';
+        value: number | QuoteRequest;
       } | null)
     | ({
         relationTo: 'studio-bookings';
@@ -901,6 +929,27 @@ export interface LeadsSelect<T extends boolean = true> {
   phone?: T;
   message?: T;
   type?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests_select".
+ */
+export interface QuoteRequestsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  projectType?: T;
+  budget?: T;
+  message?: T;
+  features?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   status?: T;
   updatedAt?: T;
   createdAt?: T;

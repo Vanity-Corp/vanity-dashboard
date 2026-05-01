@@ -10,6 +10,7 @@ import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { PricingPackages } from './collections/PricingPackages'
+import { QuoteRequests } from './collections/QuoteRequests'
 import { Projects } from './collections/Projects'
 import { Services } from './collections/Services'
 import { StudioBookings } from './collections/StudioBookings'
@@ -64,6 +65,7 @@ export default buildConfig({
     TeamMembers,
     PricingPackages,
     Leads,
+    QuoteRequests,
     StudioBookings,
     Articles,
     Media,
