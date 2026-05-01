@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
+import { QuoteRequestEmail } from '@/components/emails/quote-request-email'
 
 import { corsHeaders, optionsResponse, resendSendEmail } from '../_lib'
 
@@ -18,13 +19,19 @@ export async function POST(request: Request) {
   let status: 'sent' | 'failed' = 'failed'
 
   try {
-    const featuresHtml = features.length > 0 ? `<ul>${features.map((value: string) => `<li>${value}</li>`).join('')}</ul>` : '<p>Aucune fonctionnalité précisée.</p>'
-
     await resendSendEmail({
       from: process.env.RESEND_FROM_QUOTE || 'contact@vanitycorp.fr',
       to: process.env.RESEND_TO_QUOTE || 'Corp.vanity@gmail.com',
       subject: 'Nouvelle demande de devis',
-      html: `<h2>Nouvelle demande de devis</h2><p><b>Nom:</b> ${body.name || ''}</p><p><b>Email:</b> ${body.email || ''}</p><p><b>Téléphone:</b> ${body.phone || ''}</p><p><b>Type de projet:</b> ${body.projectType || ''}</p><p><b>Budget:</b> ${body.budget || ''}</p>${featuresHtml}<p><b>Message:</b><br/>${body.message || ''}</p>`,
+      react: QuoteRequestEmail({
+        name: body.name || '',
+        email: body.email || '',
+        phone: body.phone || '',
+        clientType: body.projectType || '',
+        budget: body.budget || '',
+        services: body.message || '',
+        features: features.join(', '),
+      }),
     })
 
     status = 'sent'

@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
+import { ContactEmail } from '@/components/emails/contactEmail'
 
 import { corsHeaders, optionsResponse, resendSendEmail } from '../../_lib'
 
@@ -21,7 +22,12 @@ export async function POST(request: Request) {
       from: process.env.RESEND_FROM_CONTACT || 'contact@vanitycorp.fr',
       to: process.env.RESEND_TO_CONTACT || 'Corp.vanity@gmail.com',
       subject: 'Contact',
-      html: `<h2>Nouveau contact</h2><p><b>Nom:</b> ${body.name || ''}</p><p><b>Email:</b> ${body.email || ''}</p><p><b>Téléphone:</b> ${body.phone || ''}</p><p><b>Message:</b><br/>${body.message || ''}</p>`,
+      react: ContactEmail({
+        name: body.name || '',
+        email: body.email || '',
+        phone: body.phone || '',
+        message: body.message || '',
+      }),
     })
 
     status = 'sent'

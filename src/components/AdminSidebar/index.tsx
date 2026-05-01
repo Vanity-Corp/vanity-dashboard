@@ -15,7 +15,7 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type React from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -29,8 +29,36 @@ type NavItem = {
 export const AdminSidebar = () => {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
+  const [counts, setCounts] = useState({ devis: 0, emails: 0, reservations: 0 })
 
-  const counts = useMemo(() => ({ devis: 0, emails: 0, reservations: 0 }), [])
+  useEffect(() => {
+    let mounted = true
+
+    const loadCounts = async () => {
+      try {
+        const response = await fetch('/api/admin/notifications', { cache: 'no-store' })
+        if (!response.ok) return
+        const data = (await response.json()) as { devis: number; emails: number; reservations: number }
+        if (mounted) {
+          setCounts({
+            devis: data.devis ?? 0,
+            emails: data.emails ?? 0,
+            reservations: data.reservations ?? 0,
+          })
+        }
+      } catch {
+        // no-op: keep default zero counters if fetch fails
+      }
+    }
+
+    void loadCounts()
+    const interval = setInterval(loadCounts, 30_000)
+
+    return () => {
+      mounted = false
+      clearInterval(interval)
+    }
+  }, [])
 
   const navItems: NavItem[] = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import type { ReactElement } from 'react'
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) ?? ['*']
 
@@ -27,11 +28,13 @@ export const resendSendEmail = async ({
   to,
   subject,
   html,
+  react,
 }: {
   from: string
   to: string | string[]
   subject: string
-  html: string
+  html?: string
+  react?: ReactElement
 }) => {
   const apiKey = process.env.RESEND_API_KEY
 
@@ -45,7 +48,7 @@ export const resendSendEmail = async ({
     from,
     to: Array.isArray(to) ? to : [to],
     subject,
-    html,
+    ...(react ? { react } : { html: html || '' }),
   })
 
   if (error) {
