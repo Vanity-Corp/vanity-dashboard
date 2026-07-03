@@ -1,24 +1,34 @@
 import type { CollectionConfig } from 'payload'
+
+import { BookingBlock } from './blocks/BookingBlock'
+import { ContactBlock } from './blocks/ContactBlock'
+import { CTABlock } from './blocks/CTABlock'
+import { FAQBlock } from './blocks/FAQBlock'
+import { FeatureCardsBlock } from './blocks/FeatureCardsBlock'
 import { HeroBlock } from './blocks/HeroBlock'
+import { PortfolioBlock } from './blocks/PortfolioBlock'
+import { PricingBlock } from './blocks/PricingBlock'
+import { ProcessBlock } from './blocks/ProcessBlock'
+import { ServiceGridBlock } from './blocks/ServiceGridBlock'
+import { StatsBlock } from './blocks/StatsBlock'
+import { TextMediaBlock } from './blocks/TextMediaBlock'
+import { VideoBlock } from './blocks/VideoBlock'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   fields: [
     { name: 'title', type: 'text', required: true },
-
     {
       name: 'slug',
       type: 'text',
       required: true,
       unique: true,
     },
-
     {
       name: 'template',
       type: 'select',
       options: ['home', 'service', 'landing', 'contact', 'pricing', 'portfolio', 'booking'],
     },
-
     {
       name: 'layout',
       type: 'blocks',
@@ -38,7 +48,6 @@ export const Pages: CollectionConfig = {
         ContactBlock,
       ],
     },
-
     {
       name: 'seo',
       type: 'group',
