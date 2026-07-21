@@ -1,7 +1,13 @@
 import type { GlobalConfig } from 'payload'
 
+import { allowPublicRead, isAuthenticated } from '../access'
+
 export const Footer: GlobalConfig = {
   slug: 'footer',
+  access: {
+    read: allowPublicRead,
+    update: isAuthenticated,
+  },
   fields: [
     {
       name: 'columns',

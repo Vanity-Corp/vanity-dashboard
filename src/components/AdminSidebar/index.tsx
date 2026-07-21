@@ -13,7 +13,7 @@ import {
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
@@ -24,10 +24,14 @@ type NavItem = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   label: string
   badge?: number
+  /** For the unified submissions views: which `type` filter this entry represents. */
+  submissionType?: 'contact' | 'quote' | 'reservation'
 }
 
 export const AdminSidebar = () => {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const activeSubmissionType = searchParams.get('where[type][equals]')
   const [collapsed, setCollapsed] = useState(false)
   const [counts, setCounts] = useState({ devis: 0, emails: 0, reservations: 0 })
 
@@ -60,6 +64,26 @@ export const AdminSidebar = () => {
     }
   }, [])
 
+  // Opening a submissions tab acknowledges its notifications: clear the badge
+  // immediately (optimistic) and mark that type's submissions read on the server.
+  const countKeyByType: Record<'contact' | 'quote' | 'reservation', 'emails' | 'devis' | 'reservations'> = {
+    contact: 'emails',
+    quote: 'devis',
+    reservation: 'reservations',
+  }
+
+  const markTypeRead = (type: 'contact' | 'quote' | 'reservation') => {
+    setCounts((prev) => ({ ...prev, [countKeyByType[type]]: 0 }))
+    void fetch('/api/admin/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+      cache: 'no-store',
+    }).catch(() => {
+      // no-op: the 30s poll will re-sync if this fails
+    })
+  }
+
   const navItems: NavItem[] = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/collections/team-members', icon: Users, label: 'Vaniteam' },
@@ -67,17 +91,25 @@ export const AdminSidebar = () => {
     { href: '/admin/collections/pages', icon: FileText, label: 'Pages' },
     { href: '/admin/collections/media', icon: Image, label: 'Média' },
     {
-      href: '/admin/collections/quote-requests',
+      href: '/admin/collections/submissions?where[type][equals]=quote',
       icon: MessageSquareQuote,
       label: 'Devis',
       badge: counts.devis,
+      submissionType: 'quote',
     },
-    { href: '/admin/collections/leads', icon: Inbox, label: 'Emails', badge: counts.emails },
     {
-      href: '/admin/collections/studio-bookings',
+      href: '/admin/collections/submissions?where[type][equals]=contact',
+      icon: Inbox,
+      label: 'Emails',
+      badge: counts.emails,
+      submissionType: 'contact',
+    },
+    {
+      href: '/admin/collections/submissions?where[type][equals]=reservation',
       icon: CalendarClock,
       label: 'Réservation',
       badge: counts.reservations,
+      submissionType: 'reservation',
     },
   ]
 
@@ -105,14 +137,19 @@ export const AdminSidebar = () => {
       <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-5">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive =
-            item.href === '/admin'
+          const isSubmissionsView = pathname === '/admin/collections/submissions'
+          const isActive = item.submissionType
+            ? isSubmissionsView && activeSubmissionType === item.submissionType
+            : item.href === '/admin'
               ? pathname === '/admin'
               : pathname === item.href || pathname.startsWith(`${item.href}/`)
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => {
+                if (item.submissionType) markTypeRead(item.submissionType)
+              }}
               className={cn(
                 'flex items-center gap-4 rounded-xl px-4 py-3 text-xl font-semibold transition',
                 isActive

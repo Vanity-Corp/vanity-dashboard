@@ -74,9 +74,8 @@ export interface Config {
     testimonials: Testimonial;
     'team-members': TeamMember;
     'pricing-packages': PricingPackage;
-    leads: Lead;
-    'quote-requests': QuoteRequest;
-    'studio-bookings': StudioBooking;
+    clients: Client;
+    submissions: Submission;
     articles: Article;
     media: Media;
     'payload-kv': PayloadKv;
@@ -93,9 +92,8 @@ export interface Config {
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     'pricing-packages': PricingPackagesSelect<false> | PricingPackagesSelect<true>;
-    leads: LeadsSelect<false> | LeadsSelect<true>;
-    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
-    'studio-bookings': StudioBookingsSelect<false> | StudioBookingsSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
+    submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -455,53 +453,59 @@ export interface TeamMember {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads".
+ * via the `definition` "clients".
  */
-export interface Lead {
+export interface Client {
   id: number;
-  name?: string | null;
-  email: string;
-  phone?: string | null;
-  message?: string | null;
-  type?: ('contact' | 'quote') | null;
-  status?: ('new' | 'sent' | 'failed' | 'in-progress' | 'closed') | null;
+  name: string;
+  logo?: (number | null) | Media;
+  sector?: string | null;
+  focus?: string | null;
+  category: 'brand' | 'artist' | 'strategic_client';
+  active?: boolean | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests".
+ * via the `definition` "submissions".
  */
-export interface QuoteRequest {
+export interface Submission {
   id: number;
+  type: 'contact' | 'quote' | 'reservation';
   name?: string | null;
   email: string;
   phone?: string | null;
+  message?: string | null;
+  clientType?: string | null;
   projectType?: string | null;
   budget?: string | null;
-  message?: string | null;
   features?:
     | {
         value?: string | null;
         id?: string | null;
       }[]
     | null;
-  status?: ('new' | 'sent' | 'failed') | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "studio-bookings".
- */
-export interface StudioBooking {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string | null;
-  date: string;
-  notes?: string | null;
-  status?: ('pending' | 'confirmed' | 'cancelled') | null;
+  date?: string | null;
+  hours?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('pending' | 'sent' | 'failed') | null;
+  lifecycle?: ('new' | 'in-progress' | 'closed') | null;
+  read?: boolean | null;
+  raw?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -587,16 +591,12 @@ export interface PayloadLockedDocument {
         value: number | PricingPackage;
       } | null)
     | ({
-        relationTo: 'leads';
-        value: number | Lead;
+        relationTo: 'clients';
+        value: number | Client;
       } | null)
     | ({
-        relationTo: 'quote-requests';
-        value: number | QuoteRequest;
-      } | null)
-    | ({
-        relationTo: 'studio-bookings';
-        value: number | StudioBooking;
+        relationTo: 'submissions';
+        value: number | Submission;
       } | null)
     | ({
         relationTo: 'articles';
@@ -921,50 +921,49 @@ export interface PricingPackagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads_select".
+ * via the `definition` "clients_select".
  */
-export interface LeadsSelect<T extends boolean = true> {
+export interface ClientsSelect<T extends boolean = true> {
   name?: T;
-  email?: T;
-  phone?: T;
-  message?: T;
-  type?: T;
-  status?: T;
+  logo?: T;
+  sector?: T;
+  focus?: T;
+  category?: T;
+  active?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests_select".
+ * via the `definition` "submissions_select".
  */
-export interface QuoteRequestsSelect<T extends boolean = true> {
+export interface SubmissionsSelect<T extends boolean = true> {
+  type?: T;
   name?: T;
   email?: T;
   phone?: T;
+  message?: T;
+  clientType?: T;
   projectType?: T;
   budget?: T;
-  message?: T;
   features?:
     | T
     | {
         value?: T;
         id?: T;
       };
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "studio-bookings_select".
- */
-export interface StudioBookingsSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  phone?: T;
   date?: T;
-  notes?: T;
+  hours?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   status?: T;
+  lifecycle?: T;
+  read?: T;
+  raw?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1049,6 +1048,40 @@ export interface SiteSetting {
   siteName?: string | null;
   logo?: (number | null) | Media;
   primaryColor?: string | null;
+  /**
+   * Adresses utilisées pour l'envoi des emails de formulaire. Laisser vide pour utiliser les valeurs par défaut de l'environnement.
+   */
+  email?: {
+    fromName?: string | null;
+    fromAddress?: string | null;
+    /**
+     * Utilisé quand un destinataire spécifique par type n’est pas défini.
+     */
+    notificationRecipient?: string | null;
+    contactRecipient?: string | null;
+    quoteRecipient?: string | null;
+    reservationRecipient?: string | null;
+  };
+  contact?: {
+    phone?: string | null;
+    email?: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    mapUrl?: string | null;
+  };
+  social?: {
+    instagram?: string | null;
+    linkedin?: string | null;
+    tiktok?: string | null;
+    youtube?: string | null;
+  };
+  analytics?: {
+    gaMeasurementId?: string | null;
+  };
+  showreel?: {
+    video?: (number | null) | Media;
+    poster?: (number | null) | Media;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1060,8 +1093,21 @@ export interface Navigation {
   id: number;
   items?:
     | {
-        label?: string | null;
+        label: string;
         link?: string | null;
+        description?: string | null;
+        image?: (number | null) | Media;
+        disabled?: boolean | null;
+        children?:
+          | {
+              label: string;
+              link?: string | null;
+              description?: string | null;
+              image?: (number | null) | Media;
+              disabled?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -1098,6 +1144,44 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   logo?: T;
   primaryColor?: T;
+  email?:
+    | T
+    | {
+        fromName?: T;
+        fromAddress?: T;
+        notificationRecipient?: T;
+        contactRecipient?: T;
+        quoteRecipient?: T;
+        reservationRecipient?: T;
+      };
+  contact?:
+    | T
+    | {
+        phone?: T;
+        email?: T;
+        addressLine?: T;
+        city?: T;
+        mapUrl?: T;
+      };
+  social?:
+    | T
+    | {
+        instagram?: T;
+        linkedin?: T;
+        tiktok?: T;
+        youtube?: T;
+      };
+  analytics?:
+    | T
+    | {
+        gaMeasurementId?: T;
+      };
+  showreel?:
+    | T
+    | {
+        video?: T;
+        poster?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1112,6 +1196,19 @@ export interface NavigationSelect<T extends boolean = true> {
     | {
         label?: T;
         link?: T;
+        description?: T;
+        image?: T;
+        disabled?: T;
+        children?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              description?: T;
+              image?: T;
+              disabled?: T;
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;

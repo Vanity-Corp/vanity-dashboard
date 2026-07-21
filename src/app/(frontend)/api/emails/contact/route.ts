@@ -1,9 +1,8 @@
-import config from '@payload-config'
-import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
-import { ContactEmail } from '@/components/emails/contactEmail'
 
-import { corsHeaders, optionsResponse, resendSendEmail } from '../../_lib'
+import { createSubmission } from '@/lib/submissions'
+
+import { corsHeaders, optionsResponse, verifyFormToken } from '../../_lib'
 
 export async function OPTIONS(request: Request) {
   return optionsResponse(request.headers.get('origin'))
@@ -12,40 +11,30 @@ export async function OPTIONS(request: Request) {
 export async function POST(request: Request) {
   const origin = request.headers.get('origin')
   const headers = corsHeaders(origin)
-  const body = await request.json()
-  const payload = await getPayload({ config })
 
-  let status: 'sent' | 'failed' = 'failed'
-
-  try {
-    await resendSendEmail({
-      from: process.env.RESEND_FROM_CONTACT || 'contact@vanitycorp.fr',
-      to: process.env.RESEND_TO_CONTACT || 'Corp.vanity@gmail.com',
-      subject: 'Contact',
-      react: ContactEmail({
-        name: body.name || '',
-        email: body.email || '',
-        phone: body.phone || '',
-        message: body.message || '',
-      }),
-    })
-
-    status = 'sent'
-  } catch (error) {
-    payload.logger.error({ error }, 'Contact email delivery failed')
+  if (!verifyFormToken(request)) {
+    return NextResponse.json({ message: 'Non autorisé' }, { status: 401, headers })
   }
 
-  await payload.create({
-    collection: 'leads',
-    data: {
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
-      message: body.message,
-      type: 'contact',
-      status,
-    },
+  const body = await request.json().catch(() => ({}) as Record<string, unknown>)
+
+  if (!body?.email) {
+    return NextResponse.json({ message: 'Email requis', status: 'error' }, { status: 400, headers })
+  }
+
+  // Persist first (durable). Email delivery is wired in Phase 2 (Nodemailer),
+  // which will update `status` to 'sent' / 'failed'.
+  const submission = await createSubmission({
+    type: 'contact',
+    name: body.name as string | undefined,
+    email: body.email as string,
+    phone: body.phone as string | undefined,
+    message: body.message as string | undefined,
+    raw: body,
   })
 
-  return NextResponse.json({ message: 'Email traité', status }, { headers })
+  return NextResponse.json(
+    { message: 'Message enregistré', status: submission.status, id: submission.id },
+    { headers },
+  )
 }
