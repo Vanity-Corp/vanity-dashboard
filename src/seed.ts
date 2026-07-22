@@ -1,3 +1,7 @@
+// Load .env BEFORE importing the Payload config (the config reads DATABASE_URL
+// at import time). `payload run` does not auto-load .env like `next dev` does.
+import 'dotenv/config'
+
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -53,6 +57,10 @@ const artists: { name: string; imageUrl: string; link: string }[] = [
 ]
 
 const run = async () => {
+  const dbTarget = (process.env.DATABASE_URL || '(unset)').replace(/:[^:@/]*@/, ':****@')
+  // eslint-disable-next-line no-console
+  console.log('[seed] DATABASE_URL =', dbTarget)
+
   const payload = await getPayload({ config })
 
   const existing = await payload.count({ collection: 'clients' })
