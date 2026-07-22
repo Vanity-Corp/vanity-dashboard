@@ -2,7 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
 
-import { seedClients } from '@/lib/seedClients'
+import { seedClients, seedPages } from '@/lib/seedClients'
 
 /**
  * Dev seed utility. Reuses the running server's Payload instance (no separate
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     )
   }
 
-  const result = await seedClients(payload)
-  return NextResponse.json({ ok: true, ...result })
+  const clients = await seedClients(payload)
+  const pages = await seedPages(payload)
+  return NextResponse.json({ ok: true, clients, pages })
 }

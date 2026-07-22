@@ -76,3 +76,39 @@ export async function seedClients(
 
   return { created, skipped: false }
 }
+
+/** Idempotent: seeds the Home page (metadata + client-showcase sections) if absent. */
+export async function seedPages(payload: Payload): Promise<{ created: boolean }> {
+  const existing = await payload.count({
+    collection: 'pages',
+    where: { slug: { equals: 'home' } },
+  })
+  if (existing.totalDocs > 0) return { created: false }
+
+  await payload.create({
+    collection: 'pages',
+    data: {
+      title: 'Accueil',
+      slug: 'home',
+      seo: {
+        metaTitle: 'Vanity corp | Agence de communication créative 360',
+        metaDescription:
+          'Tout buzzer pour donner de la visibilité à votre projet est un savoir faire. Vanity Corp est une agence de communication créative 360.',
+      },
+      sections: [
+        {
+          blockType: 'clientsShowcase',
+          heading: 'Ils nous ont fait confiance',
+          category: 'brand',
+        },
+        {
+          blockType: 'clientsShowcase',
+          heading: 'Artistes & talents accompagnés',
+          category: 'artist',
+        },
+      ],
+    },
+  })
+
+  return { created: true }
+}

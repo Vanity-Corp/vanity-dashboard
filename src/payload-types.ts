@@ -199,163 +199,41 @@ export interface Media {
 export interface Page {
   id: number;
   title: string;
+  /**
+   * Ex: 'home', 'studio', 'audiovisuel'.
+   */
   slug: string;
-  template?: ('home' | 'service' | 'landing' | 'contact' | 'pricing' | 'portfolio' | 'booking') | null;
-  layout?:
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  sections?:
     | (
         | {
+            /**
+             * Ex: about, cta — utilisé par le site pour placer la section.
+             */
+            key?: string | null;
             eyebrow?: string | null;
-            title: string;
-            description?: string | null;
-            primaryCTA?: {
-              label?: string | null;
-              link?: string | null;
-            };
-            secondaryCTA?: {
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundImage?: (number | null) | Media;
+            heading?: string | null;
+            body?: string | null;
+            image?: (number | null) | Media;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'hero';
+            blockType: 'richSection';
           }
         | {
-            title?: string | null;
-            items?:
-              | {
-                  value?: string | null;
-                  label?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
+            eyebrow?: string | null;
+            heading: string;
+            category: 'brand' | 'artist' | 'strategic_client';
+            maxItems?: number | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'stats';
-          }
-        | {
-            title?: string | null;
-            items?:
-              | {
-                  title?: string | null;
-                  description?: string | null;
-                  icon?: (number | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'features';
-          }
-        | {
-            title?: string | null;
-            services?: (number | Service)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'services';
-          }
-        | {
-            title?: string | null;
-            content?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            media?: (number | null) | Media;
-            reversed?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textMedia';
-          }
-        | {
-            title?: string | null;
-            steps?:
-              | {
-                  step?: string | null;
-                  title?: string | null;
-                  description?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'process';
-          }
-        | {
-            title?: string | null;
-            projects?: (number | Project)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'portfolio';
-          }
-        | {
-            title?: string | null;
-            video?: (number | null) | Media;
-            poster?: (number | null) | Media;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'video';
-          }
-        | {
-            title?: string | null;
-            description?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'booking';
-          }
-        | {
-            packages?: (number | PricingPackage)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'pricing';
-          }
-        | {
-            items?:
-              | {
-                  question?: string | null;
-                  answer?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'faq';
-          }
-        | {
-            title?: string | null;
-            description?: string | null;
-            buttonLabel?: string | null;
-            buttonLink?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            title?: string | null;
-            email?: string | null;
-            phone?: string | null;
-            address?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'contact';
+            blockType: 'clientsShowcase';
           }
       )[]
     | null;
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -408,24 +286,6 @@ export interface Project {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pricing-packages".
- */
-export interface PricingPackage {
-  id: number;
-  title: string;
-  price?: string | null;
-  features?:
-    | {
-        feature?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  highlighted?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -448,6 +308,24 @@ export interface TeamMember {
   position?: string | null;
   photo?: (number | null) | Media;
   bio?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing-packages".
+ */
+export interface PricingPackage {
+  id: number;
+  title: string;
+  price?: string | null;
+  features?:
+    | {
+        feature?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  highlighted?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -687,166 +565,37 @@ export interface UsersSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  template?: T;
-  layout?:
-    | T
-    | {
-        hero?:
-          | T
-          | {
-              eyebrow?: T;
-              title?: T;
-              description?: T;
-              primaryCTA?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                  };
-              secondaryCTA?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundImage?: T;
-              id?: T;
-              blockName?: T;
-            };
-        stats?:
-          | T
-          | {
-              title?: T;
-              items?:
-                | T
-                | {
-                    value?: T;
-                    label?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        features?:
-          | T
-          | {
-              title?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    icon?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        services?:
-          | T
-          | {
-              title?: T;
-              services?: T;
-              id?: T;
-              blockName?: T;
-            };
-        textMedia?:
-          | T
-          | {
-              title?: T;
-              content?: T;
-              media?: T;
-              reversed?: T;
-              id?: T;
-              blockName?: T;
-            };
-        process?:
-          | T
-          | {
-              title?: T;
-              steps?:
-                | T
-                | {
-                    step?: T;
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        portfolio?:
-          | T
-          | {
-              title?: T;
-              projects?: T;
-              id?: T;
-              blockName?: T;
-            };
-        video?:
-          | T
-          | {
-              title?: T;
-              video?: T;
-              poster?: T;
-              id?: T;
-              blockName?: T;
-            };
-        booking?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              id?: T;
-              blockName?: T;
-            };
-        pricing?:
-          | T
-          | {
-              packages?: T;
-              id?: T;
-              blockName?: T;
-            };
-        faq?:
-          | T
-          | {
-              items?:
-                | T
-                | {
-                    question?: T;
-                    answer?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              buttonLabel?: T;
-              buttonLink?: T;
-              id?: T;
-              blockName?: T;
-            };
-        contact?:
-          | T
-          | {
-              title?: T;
-              email?: T;
-              phone?: T;
-              address?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
   seo?:
     | T
     | {
-        title?: T;
-        description?: T;
-        image?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  sections?:
+    | T
+    | {
+        richSection?:
+          | T
+          | {
+              key?: T;
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              id?: T;
+              blockName?: T;
+            };
+        clientsShowcase?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              category?: T;
+              maxItems?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

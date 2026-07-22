@@ -11,6 +11,7 @@ import {
   MessageSquareQuote,
   Newspaper,
   PanelLeft,
+  Settings,
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -181,6 +182,16 @@ export const AdminSidebar = () => {
           <Inbox className="size-5" />
           {!collapsed && <span className="text-base">Notifications</span>}
         </div>
+        <Link
+          className={cn(
+            'flex items-center gap-3 rounded-xl px-3 py-2 text-base hover:bg-white/10',
+            collapsed && 'justify-center',
+          )}
+          href="/admin/globals/site-settings"
+        >
+          <Settings className="size-5" />
+          {!collapsed && <span>Paramètres</span>}
+        </Link>
         <a
           className={cn(
             'flex items-center gap-3 rounded-xl px-3 py-2 text-base hover:bg-white/10',

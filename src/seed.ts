@@ -5,7 +5,7 @@ import 'dotenv/config'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { seedClients } from './lib/seedClients'
+import { seedClients, seedPages } from './lib/seedClients'
 
 /**
  * CLI seed: `pnpm seed`. Note this triggers a full Payload init (incl. schema
@@ -18,12 +18,12 @@ const run = async () => {
   console.log('[seed] DATABASE_URL =', dbTarget)
 
   const payload = await getPayload({ config })
-  const result = await seedClients(payload)
+  const clients = await seedClients(payload)
+  const pages = await seedPages(payload)
 
   payload.logger.info(
-    result.skipped
-      ? 'Clients already present. Skipping seed.'
-      : `Seeded ${result.created} clients.`,
+    `Clients: ${clients.skipped ? 'already present' : `seeded ${clients.created}`}. ` +
+      `Home page: ${pages.created ? 'seeded' : 'already present'}.`,
   )
   process.exit(0)
 }
