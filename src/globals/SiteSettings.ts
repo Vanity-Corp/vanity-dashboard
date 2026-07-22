@@ -1,12 +1,16 @@
 import type { GlobalConfig } from 'payload'
 
 import { allowPublicRead, isAuthenticated } from '../access'
+import { revalidateGlobal } from '../hooks/revalidate'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   access: {
     read: allowPublicRead,
     update: isAuthenticated,
+  },
+  hooks: {
+    afterChange: [revalidateGlobal('site-settings')],
   },
   fields: [
     { name: 'siteName', type: 'text' },

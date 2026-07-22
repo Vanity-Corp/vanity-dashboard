@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { allowPublicRead, isAuthenticated } from '../access'
+import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 /**
  * Client / brand / artist references shown across the marketing site
@@ -23,9 +24,23 @@ export const Clients: CollectionConfig = {
     update: isAuthenticated,
     delete: isAuthenticated,
   },
+  hooks: {
+    afterChange: [revalidateCollection('clients')],
+    afterDelete: [revalidateCollectionDelete('clients')],
+  },
   fields: [
     { name: 'name', type: 'text', label: 'Nom', required: true },
     { name: 'logo', type: 'upload', relationTo: 'media', label: 'Logo' },
+    {
+      name: 'imageUrl',
+      type: 'text',
+      label: 'Image (URL ou chemin)',
+      admin: {
+        description:
+          "Utilisé si aucun logo n'est téléversé (ex: chemin d'un asset du site). Le logo téléversé a priorité.",
+      },
+    },
+    { name: 'link', type: 'text', label: 'Lien (site / réseau social)' },
     { name: 'sector', type: 'text', label: 'Secteur' },
     { name: 'focus', type: 'text', label: 'Spécialité' },
     {

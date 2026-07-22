@@ -459,6 +459,11 @@ export interface Client {
   id: number;
   name: string;
   logo?: (number | null) | Media;
+  /**
+   * Utilisé si aucun logo n'est téléversé (ex: chemin d'un asset du site). Le logo téléversé a priorité.
+   */
+  imageUrl?: string | null;
+  link?: string | null;
   sector?: string | null;
   focus?: string | null;
   category: 'brand' | 'artist' | 'strategic_client';
@@ -926,6 +931,8 @@ export interface PricingPackagesSelect<T extends boolean = true> {
 export interface ClientsSelect<T extends boolean = true> {
   name?: T;
   logo?: T;
+  imageUrl?: T;
+  link?: T;
   sector?: T;
   focus?: T;
   category?: T;
