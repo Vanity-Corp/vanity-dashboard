@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Briefcase,
   CalendarClock,
   FileText,
   Image,
@@ -89,6 +90,7 @@ export const AdminSidebar = () => {
     { href: '/admin/collections/team-members', icon: Users, label: 'Vaniteam' },
     { href: '/admin/collections/articles', icon: Newspaper, label: 'Articles' },
     { href: '/admin/collections/pages', icon: FileText, label: 'Pages' },
+    { href: '/admin/collections/clients', icon: Briefcase, label: 'Clients' },
     { href: '/admin/collections/media', icon: Image, label: 'Média' },
     {
       href: '/admin/collections/submissions?where[type][equals]=quote',
