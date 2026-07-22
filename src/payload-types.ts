@@ -212,13 +212,21 @@ export interface Page {
     | (
         | {
             /**
-             * Ex: about, cta — utilisé par le site pour placer la section.
+             * Ex: about, worldmap, cta, team — utilisé par le site pour placer la section.
              */
             key?: string | null;
             eyebrow?: string | null;
             heading?: string | null;
             body?: string | null;
             image?: (number | null) | Media;
+            items?:
+              | {
+                  value?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'richSection';
@@ -243,10 +251,30 @@ export interface Page {
  */
 export interface Service {
   id: number;
-  title?: string | null;
-  slug?: string | null;
+  title: string;
+  /**
+   * Ex: studio-de-tournage, accompagnement-strategique, audiovisuel
+   */
+  slug: string;
+  eyebrow?: string | null;
+  color?: string | null;
+  link?: string | null;
+  reverse?: boolean | null;
   description?: string | null;
   image?: (number | null) | Media;
+  imageUrl?: string | null;
+  sortOrder?: number | null;
+  features?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        /**
+         * Ex: Camera, Lightbulb, Target
+         */
+        icon?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -307,7 +335,9 @@ export interface TeamMember {
   name: string;
   position?: string | null;
   photo?: (number | null) | Media;
+  imageUrl?: string | null;
   bio?: string | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -583,6 +613,14 @@ export interface PagesSelect<T extends boolean = true> {
               heading?: T;
               body?: T;
               image?: T;
+              items?:
+                | T
+                | {
+                    value?: T;
+                    id?: T;
+                  };
+              ctaLabel?: T;
+              ctaHref?: T;
               id?: T;
               blockName?: T;
             };
@@ -607,8 +645,22 @@ export interface PagesSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  eyebrow?: T;
+  color?: T;
+  link?: T;
+  reverse?: T;
   description?: T;
   image?: T;
+  imageUrl?: T;
+  sortOrder?: T;
+  features?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        icon?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -652,7 +704,9 @@ export interface TeamMembersSelect<T extends boolean = true> {
   name?: T;
   position?: T;
   photo?: T;
+  imageUrl?: T;
   bio?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -837,6 +891,11 @@ export interface SiteSetting {
   showreel?: {
     video?: (number | null) | Media;
     poster?: (number | null) | Media;
+    /**
+     * Utilisé si aucune vidéo n'est téléversée. Ex: /videos/showreel.mp4
+     */
+    videoUrl?: string | null;
+    posterUrl?: string | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -937,6 +996,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         video?: T;
         poster?: T;
+        videoUrl?: T;
+        posterUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;

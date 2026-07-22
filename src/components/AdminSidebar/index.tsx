@@ -4,6 +4,7 @@ import {
   Briefcase,
   CalendarClock,
   FileText,
+  FolderKanban,
   Image,
   Inbox,
   LayoutDashboard,
@@ -91,6 +92,7 @@ export const AdminSidebar = () => {
     { href: '/admin/collections/team-members', icon: Users, label: 'Vaniteam' },
     { href: '/admin/collections/articles', icon: Newspaper, label: 'Articles' },
     { href: '/admin/collections/pages', icon: FileText, label: 'Pages' },
+    { href: '/admin/collections/services', icon: FolderKanban, label: 'Services' },
     { href: '/admin/collections/clients', icon: Briefcase, label: 'Clients' },
     { href: '/admin/collections/media', icon: Image, label: 'Média' },
     {

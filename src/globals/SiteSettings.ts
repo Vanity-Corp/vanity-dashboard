@@ -72,8 +72,15 @@ export const SiteSettings: GlobalConfig = {
       type: 'group',
       label: 'Showreel (accueil)',
       fields: [
-        { name: 'video', type: 'upload', relationTo: 'media', label: 'Vidéo' },
-        { name: 'poster', type: 'upload', relationTo: 'media', label: 'Image de couverture' },
+        { name: 'video', type: 'upload', relationTo: 'media', label: 'Vidéo (téléversée)' },
+        { name: 'poster', type: 'upload', relationTo: 'media', label: 'Image de couverture (téléversée)' },
+        {
+          name: 'videoUrl',
+          type: 'text',
+          label: 'Vidéo (URL ou chemin)',
+          admin: { description: "Utilisé si aucune vidéo n'est téléversée. Ex: /videos/showreel.mp4" },
+        },
+        { name: 'posterUrl', type: 'text', label: 'Image de couverture (URL ou chemin)' },
       ],
     },
   ],

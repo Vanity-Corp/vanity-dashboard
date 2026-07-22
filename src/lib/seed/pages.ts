@@ -9,7 +9,16 @@ import type { Payload } from 'payload'
  * TO EXTEND: add a new entry here when a new page/route is introduced.
  */
 type SectionSeed =
-  | { blockType: 'richSection'; key?: string; eyebrow?: string; heading?: string; body?: string }
+  | {
+      blockType: 'richSection'
+      key?: string
+      eyebrow?: string
+      heading?: string
+      body?: string
+      items?: { value: string }[]
+      ctaLabel?: string
+      ctaHref?: string
+    }
   | {
       blockType: 'clientsShowcase'
       eyebrow?: string
@@ -34,8 +43,37 @@ export const pageSeeds: PageSeed[] = [
         'Tout buzzer pour donner de la visibilité à votre projet est un savoir faire. Vanity Corp est une agence de communication créative 360.',
     },
     sections: [
+      {
+        blockType: 'richSection',
+        key: 'about',
+        eyebrow: 'À propos',
+        heading: 'Une équipe créative, stratégique et terrain.',
+        body: 'Vanity Corp réunit stratégie, production audiovisuelle, création de contenu et studio de tournage pour transformer une idée en contenu prêt à performer.',
+        items: [
+          { value: 'Brief clair' },
+          { value: 'Production agile' },
+          { value: 'Livraison multi-format' },
+        ],
+      },
       { blockType: 'clientsShowcase', heading: 'Ils nous ont fait confiance', category: 'brand' },
       { blockType: 'clientsShowcase', heading: 'Artistes & talents accompagnés', category: 'artist' },
+      {
+        blockType: 'richSection',
+        key: 'worldmap',
+        heading: 'LE MONDE EST DANS NOS CARTES SD',
+        body: 'On ne sait pas si l’herbe est plus verte ailleurs mais nos caméras la filmeront ! Nous intervenons dans toute l’Europe et là où vos projets nous emmènent.',
+        ctaLabel: 'J’ai un projet À L’ÉTRANGER',
+        ctaHref: '/estimation',
+      },
+      {
+        blockType: 'richSection',
+        key: 'cta',
+        heading: 'Prêt à nous parler de votre projet ?',
+        body: 'Notre équipe est à votre disposition, pour faire le point sur vos besoins et sur vos enjeux !',
+        ctaLabel: 'Nous appeler',
+        ctaHref: 'tel:0634368418',
+      },
+      { blockType: 'richSection', key: 'team', heading: 'LA VANITEAM' },
     ],
   },
   {
