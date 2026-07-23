@@ -46,6 +46,13 @@ export const artistSeed: { name: string; imageUrl: string; link: string }[] = [
   { name: 'Nassi', imageUrl: '/clients/Nassi.webp', link: 'https://www.instagram.com/nassiofficiel/?hl=fr' },
 ]
 
+export const strategicSeed: { name: string; sector: string; focus: string }[] = [
+  { name: 'CMI France', sector: 'Média', focus: 'Audit social & roadmap contenu' },
+  { name: 'Ecole Ducasse', sector: 'Formation', focus: 'Positionnement digital' },
+  { name: 'Marionnaud', sector: 'Retail', focus: 'Activation social media' },
+  { name: 'Fraikin', sector: 'B2B', focus: 'Stratégie de visibilité' },
+]
+
 /** Idempotent: seeds Clients only if the collection is empty. */
 export async function seedClients(
   payload: Payload,
@@ -73,5 +80,30 @@ export async function seedClients(
     created++
   }
 
+  return { created, skipped: false }
+}
+
+/**
+ * Idempotent: seeds strategic clients only if none exist yet (checked per
+ * category, so it still runs on a DB that already has brands/artists).
+ */
+export async function seedStrategicClients(
+  payload: Payload,
+): Promise<{ created: number; skipped: boolean }> {
+  const existing = await payload.count({
+    collection: 'clients',
+    where: { category: { equals: 'strategic_client' } },
+  })
+  if (existing.totalDocs > 0) return { created: 0, skipped: true }
+
+  let sortOrder = 0
+  let created = 0
+  for (const client of strategicSeed) {
+    await payload.create({
+      collection: 'clients',
+      data: { ...client, category: 'strategic_client', active: true, sortOrder: sortOrder++ },
+    })
+    created++
+  }
   return { created, skipped: false }
 }

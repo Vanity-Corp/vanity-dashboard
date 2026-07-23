@@ -95,7 +95,13 @@ export const pageSeeds: PageSeed[] = [
         'Audit digital, stratégie de contenu et community management pour développer durablement votre marque.',
     },
     sections: [
-      { blockType: 'richSection', key: 'hero', heading: 'Accompagnement stratégique' },
+      {
+        blockType: 'richSection',
+        key: 'hero',
+        eyebrow: 'Accompagnement stratégique',
+        heading: 'Une vision claire pour votre croissance',
+        body: 'Community management, audit digital et stratégie sur mesure pour votre croissance. Nous analysons votre présence actuelle et construisons des actions concrètes pour améliorer votre visibilité et vos performances.',
+      },
       { blockType: 'clientsShowcase', heading: 'Clients accompagnés', category: 'strategic_client' },
     ],
   },
