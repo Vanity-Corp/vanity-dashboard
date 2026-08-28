@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -6,14 +7,13 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Articles } from './collections/Articles'
-import { Leads } from './collections/Leads'
+import { Clients } from './collections/Clients'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { PricingPackages } from './collections/PricingPackages'
-import { QuoteRequests } from './collections/QuoteRequests'
 import { Projects } from './collections/Projects'
 import { Services } from './collections/Services'
-import { StudioBookings } from './collections/StudioBookings'
+import { Submissions } from './collections/Submissions'
 import { TeamMembers } from './collections/TeamMembers'
 import { Testimonials } from './collections/Testimonials'
 import { Users } from './collections/Users'
@@ -64,14 +64,30 @@ export default buildConfig({
     Testimonials,
     TeamMembers,
     PricingPackages,
-    Leads,
-    QuoteRequests,
-    StudioBookings,
+    Clients,
+    Submissions,
     Articles,
     Media,
   ],
   globals: [SiteSettings, Navigation, Footer],
   editor: lexicalEditor(),
+  // Single, Payload-native transport for all outgoing mail (IONOS SMTP).
+  // `skipVerify` keeps the app booting even when SMTP env vars are unset in
+  // testing — sends simply fail at runtime and the submission is stored as 'failed'.
+  email: nodemailerAdapter({
+    defaultFromName: process.env.SMTP_FROM_NAME || 'Vanity Corp',
+    defaultFromAddress: process.env.SMTP_FROM || 'contact@vanitycorp.fr',
+    skipVerify: true,
+    transportOptions: {
+      host: process.env.SMTP_HOST || 'smtp.ionos.fr',
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    },
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

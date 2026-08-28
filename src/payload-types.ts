@@ -74,9 +74,8 @@ export interface Config {
     testimonials: Testimonial;
     'team-members': TeamMember;
     'pricing-packages': PricingPackage;
-    leads: Lead;
-    'quote-requests': QuoteRequest;
-    'studio-bookings': StudioBooking;
+    clients: Client;
+    submissions: Submission;
     articles: Article;
     media: Media;
     'payload-kv': PayloadKv;
@@ -93,9 +92,8 @@ export interface Config {
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     'pricing-packages': PricingPackagesSelect<false> | PricingPackagesSelect<true>;
-    leads: LeadsSelect<false> | LeadsSelect<true>;
-    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
-    'studio-bookings': StudioBookingsSelect<false> | StudioBookingsSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
+    submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -201,163 +199,49 @@ export interface Media {
 export interface Page {
   id: number;
   title: string;
+  /**
+   * Ex: 'home', 'studio', 'audiovisuel'.
+   */
   slug: string;
-  template?: ('home' | 'service' | 'landing' | 'contact' | 'pricing' | 'portfolio' | 'booking') | null;
-  layout?:
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  sections?:
     | (
         | {
+            /**
+             * Ex: about, worldmap, cta, team — utilisé par le site pour placer la section.
+             */
+            key?: string | null;
             eyebrow?: string | null;
-            title: string;
-            description?: string | null;
-            primaryCTA?: {
-              label?: string | null;
-              link?: string | null;
-            };
-            secondaryCTA?: {
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundImage?: (number | null) | Media;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
-            title?: string | null;
+            heading?: string | null;
+            body?: string | null;
+            image?: (number | null) | Media;
             items?:
               | {
                   value?: string | null;
-                  label?: string | null;
                   id?: string | null;
                 }[]
               | null;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'stats';
+            blockType: 'richSection';
           }
         | {
-            title?: string | null;
-            items?:
-              | {
-                  title?: string | null;
-                  description?: string | null;
-                  icon?: (number | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
+            eyebrow?: string | null;
+            heading: string;
+            category: 'brand' | 'artist' | 'strategic_client';
+            maxItems?: number | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'features';
-          }
-        | {
-            title?: string | null;
-            services?: (number | Service)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'services';
-          }
-        | {
-            title?: string | null;
-            content?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            media?: (number | null) | Media;
-            reversed?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textMedia';
-          }
-        | {
-            title?: string | null;
-            steps?:
-              | {
-                  step?: string | null;
-                  title?: string | null;
-                  description?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'process';
-          }
-        | {
-            title?: string | null;
-            projects?: (number | Project)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'portfolio';
-          }
-        | {
-            title?: string | null;
-            video?: (number | null) | Media;
-            poster?: (number | null) | Media;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'video';
-          }
-        | {
-            title?: string | null;
-            description?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'booking';
-          }
-        | {
-            packages?: (number | PricingPackage)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'pricing';
-          }
-        | {
-            items?:
-              | {
-                  question?: string | null;
-                  answer?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'faq';
-          }
-        | {
-            title?: string | null;
-            description?: string | null;
-            buttonLabel?: string | null;
-            buttonLink?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            title?: string | null;
-            email?: string | null;
-            phone?: string | null;
-            address?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'contact';
+            blockType: 'clientsShowcase';
           }
       )[]
     | null;
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -367,10 +251,30 @@ export interface Page {
  */
 export interface Service {
   id: number;
-  title?: string | null;
-  slug?: string | null;
+  title: string;
+  /**
+   * Ex: studio-de-tournage, accompagnement-strategique, audiovisuel
+   */
+  slug: string;
+  eyebrow?: string | null;
+  color?: string | null;
+  link?: string | null;
+  reverse?: boolean | null;
   description?: string | null;
   image?: (number | null) | Media;
+  imageUrl?: string | null;
+  sortOrder?: number | null;
+  features?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        /**
+         * Ex: Camera, Lightbulb, Target
+         */
+        icon?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -410,24 +314,6 @@ export interface Project {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pricing-packages".
- */
-export interface PricingPackage {
-  id: number;
-  title: string;
-  price?: string | null;
-  features?:
-    | {
-        feature?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  highlighted?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -449,59 +335,90 @@ export interface TeamMember {
   name: string;
   position?: string | null;
   photo?: (number | null) | Media;
+  imageUrl?: string | null;
   bio?: string | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads".
+ * via the `definition` "pricing-packages".
  */
-export interface Lead {
+export interface PricingPackage {
   id: number;
+  title: string;
+  price?: string | null;
+  features?:
+    | {
+        feature?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  highlighted?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients".
+ */
+export interface Client {
+  id: number;
+  name: string;
+  logo?: (number | null) | Media;
+  /**
+   * Utilisé si aucun logo n'est téléversé (ex: chemin d'un asset du site). Le logo téléversé a priorité.
+   */
+  imageUrl?: string | null;
+  link?: string | null;
+  sector?: string | null;
+  focus?: string | null;
+  category: 'brand' | 'artist' | 'strategic_client';
+  active?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  type: 'contact' | 'quote' | 'reservation';
   name?: string | null;
   email: string;
   phone?: string | null;
   message?: string | null;
-  type?: ('contact' | 'quote') | null;
-  status?: ('new' | 'sent' | 'failed' | 'in-progress' | 'closed') | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests".
- */
-export interface QuoteRequest {
-  id: number;
-  name?: string | null;
-  email: string;
-  phone?: string | null;
+  clientType?: string | null;
   projectType?: string | null;
   budget?: string | null;
-  message?: string | null;
   features?:
     | {
         value?: string | null;
         id?: string | null;
       }[]
     | null;
-  status?: ('new' | 'sent' | 'failed') | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "studio-bookings".
- */
-export interface StudioBooking {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string | null;
-  date: string;
-  notes?: string | null;
-  status?: ('pending' | 'confirmed' | 'cancelled') | null;
+  date?: string | null;
+  hours?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('pending' | 'sent' | 'failed') | null;
+  lifecycle?: ('new' | 'in-progress' | 'closed') | null;
+  read?: boolean | null;
+  raw?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -587,16 +504,12 @@ export interface PayloadLockedDocument {
         value: number | PricingPackage;
       } | null)
     | ({
-        relationTo: 'leads';
-        value: number | Lead;
+        relationTo: 'clients';
+        value: number | Client;
       } | null)
     | ({
-        relationTo: 'quote-requests';
-        value: number | QuoteRequest;
-      } | null)
-    | ({
-        relationTo: 'studio-bookings';
-        value: number | StudioBooking;
+        relationTo: 'submissions';
+        value: number | Submission;
       } | null)
     | ({
         relationTo: 'articles';
@@ -682,166 +595,45 @@ export interface UsersSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  template?: T;
-  layout?:
+  seo?:
     | T
     | {
-        hero?:
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  sections?:
+    | T
+    | {
+        richSection?:
           | T
           | {
+              key?: T;
               eyebrow?: T;
-              title?: T;
-              description?: T;
-              primaryCTA?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                  };
-              secondaryCTA?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundImage?: T;
-              id?: T;
-              blockName?: T;
-            };
-        stats?:
-          | T
-          | {
-              title?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
               items?:
                 | T
                 | {
                     value?: T;
-                    label?: T;
                     id?: T;
                   };
+              ctaLabel?: T;
+              ctaHref?: T;
               id?: T;
               blockName?: T;
             };
-        features?:
+        clientsShowcase?:
           | T
           | {
-              title?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    icon?: T;
-                    id?: T;
-                  };
+              eyebrow?: T;
+              heading?: T;
+              category?: T;
+              maxItems?: T;
               id?: T;
               blockName?: T;
             };
-        services?:
-          | T
-          | {
-              title?: T;
-              services?: T;
-              id?: T;
-              blockName?: T;
-            };
-        textMedia?:
-          | T
-          | {
-              title?: T;
-              content?: T;
-              media?: T;
-              reversed?: T;
-              id?: T;
-              blockName?: T;
-            };
-        process?:
-          | T
-          | {
-              title?: T;
-              steps?:
-                | T
-                | {
-                    step?: T;
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        portfolio?:
-          | T
-          | {
-              title?: T;
-              projects?: T;
-              id?: T;
-              blockName?: T;
-            };
-        video?:
-          | T
-          | {
-              title?: T;
-              video?: T;
-              poster?: T;
-              id?: T;
-              blockName?: T;
-            };
-        booking?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              id?: T;
-              blockName?: T;
-            };
-        pricing?:
-          | T
-          | {
-              packages?: T;
-              id?: T;
-              blockName?: T;
-            };
-        faq?:
-          | T
-          | {
-              items?:
-                | T
-                | {
-                    question?: T;
-                    answer?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              buttonLabel?: T;
-              buttonLink?: T;
-              id?: T;
-              blockName?: T;
-            };
-        contact?:
-          | T
-          | {
-              title?: T;
-              email?: T;
-              phone?: T;
-              address?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -853,8 +645,22 @@ export interface PagesSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  eyebrow?: T;
+  color?: T;
+  link?: T;
+  reverse?: T;
   description?: T;
   image?: T;
+  imageUrl?: T;
+  sortOrder?: T;
+  features?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        icon?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -898,7 +704,9 @@ export interface TeamMembersSelect<T extends boolean = true> {
   name?: T;
   position?: T;
   photo?: T;
+  imageUrl?: T;
   bio?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -921,50 +729,51 @@ export interface PricingPackagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads_select".
+ * via the `definition` "clients_select".
  */
-export interface LeadsSelect<T extends boolean = true> {
+export interface ClientsSelect<T extends boolean = true> {
   name?: T;
-  email?: T;
-  phone?: T;
-  message?: T;
-  type?: T;
-  status?: T;
+  logo?: T;
+  imageUrl?: T;
+  link?: T;
+  sector?: T;
+  focus?: T;
+  category?: T;
+  active?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests_select".
+ * via the `definition` "submissions_select".
  */
-export interface QuoteRequestsSelect<T extends boolean = true> {
+export interface SubmissionsSelect<T extends boolean = true> {
+  type?: T;
   name?: T;
   email?: T;
   phone?: T;
+  message?: T;
+  clientType?: T;
   projectType?: T;
   budget?: T;
-  message?: T;
   features?:
     | T
     | {
         value?: T;
         id?: T;
       };
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "studio-bookings_select".
- */
-export interface StudioBookingsSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  phone?: T;
   date?: T;
-  notes?: T;
+  hours?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   status?: T;
+  lifecycle?: T;
+  read?: T;
+  raw?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1049,6 +858,45 @@ export interface SiteSetting {
   siteName?: string | null;
   logo?: (number | null) | Media;
   primaryColor?: string | null;
+  /**
+   * Adresses utilisées pour l'envoi des emails de formulaire. Laisser vide pour utiliser les valeurs par défaut de l'environnement.
+   */
+  email?: {
+    fromName?: string | null;
+    fromAddress?: string | null;
+    /**
+     * Utilisé quand un destinataire spécifique par type n’est pas défini.
+     */
+    notificationRecipient?: string | null;
+    contactRecipient?: string | null;
+    quoteRecipient?: string | null;
+    reservationRecipient?: string | null;
+  };
+  contact?: {
+    phone?: string | null;
+    email?: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    mapUrl?: string | null;
+  };
+  social?: {
+    instagram?: string | null;
+    linkedin?: string | null;
+    tiktok?: string | null;
+    youtube?: string | null;
+  };
+  analytics?: {
+    gaMeasurementId?: string | null;
+  };
+  showreel?: {
+    video?: (number | null) | Media;
+    poster?: (number | null) | Media;
+    /**
+     * Utilisé si aucune vidéo n'est téléversée. Ex: /videos/showreel.mp4
+     */
+    videoUrl?: string | null;
+    posterUrl?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1060,8 +908,21 @@ export interface Navigation {
   id: number;
   items?:
     | {
-        label?: string | null;
+        label: string;
         link?: string | null;
+        description?: string | null;
+        image?: (number | null) | Media;
+        disabled?: boolean | null;
+        children?:
+          | {
+              label: string;
+              link?: string | null;
+              description?: string | null;
+              image?: (number | null) | Media;
+              disabled?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -1098,6 +959,46 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   logo?: T;
   primaryColor?: T;
+  email?:
+    | T
+    | {
+        fromName?: T;
+        fromAddress?: T;
+        notificationRecipient?: T;
+        contactRecipient?: T;
+        quoteRecipient?: T;
+        reservationRecipient?: T;
+      };
+  contact?:
+    | T
+    | {
+        phone?: T;
+        email?: T;
+        addressLine?: T;
+        city?: T;
+        mapUrl?: T;
+      };
+  social?:
+    | T
+    | {
+        instagram?: T;
+        linkedin?: T;
+        tiktok?: T;
+        youtube?: T;
+      };
+  analytics?:
+    | T
+    | {
+        gaMeasurementId?: T;
+      };
+  showreel?:
+    | T
+    | {
+        video?: T;
+        poster?: T;
+        videoUrl?: T;
+        posterUrl?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1112,6 +1013,19 @@ export interface NavigationSelect<T extends boolean = true> {
     | {
         label?: T;
         link?: T;
+        description?: T;
+        image?: T;
+        disabled?: T;
+        children?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              description?: T;
+              image?: T;
+              disabled?: T;
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;

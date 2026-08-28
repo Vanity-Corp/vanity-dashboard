@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) ?? ['*']
 
@@ -18,39 +17,16 @@ export const corsHeaders = (origin?: string | null): Record<string, string> => {
   }
 }
 
-// ✅ FONCTION MANQUANTE À AJOUTER
 export const optionsResponse = (origin?: string | null) =>
   new NextResponse(null, { status: 204, headers: corsHeaders(origin) })
 
-export const resendSendEmail = async ({
-  from,
-  to,
-  subject,
-  html,
-}: {
-  from: string
-  to: string | string[]
-  subject: string
-  html: string
-}) => {
-  const apiKey = process.env.RESEND_API_KEY
-
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY is missing')
-  }
-
-  const resend = new Resend(apiKey)
-
-  const { data, error } = await resend.emails.send({
-    from,
-    to: Array.isArray(to) ? to : [to],
-    subject,
-    html,
-  })
-
-  if (error) {
-    throw new Error(`Resend error: ${error.message}`)
-  }
-
-  return data
+/**
+ * Verify the shared form-submission token sent by the corp-site proxy.
+ * If `FORM_SUBMISSION_TOKEN` is unset (e.g. local testing), verification is
+ * skipped so the endpoints still work out of the box.
+ */
+export const verifyFormToken = (request: Request): boolean => {
+  const expected = process.env.FORM_SUBMISSION_TOKEN
+  if (!expected) return true
+  return request.headers.get('x-form-token') === expected
 }
