@@ -1,9 +1,19 @@
-import { apiFetch, setAuthToken } from '@/lib/api-client'
+import { ApiError, apiFetch, setAuthToken } from '@/lib/api-client'
+import { authClient } from '@/lib/auth-client'
 import type { AuthResponse, AuthUser, AuthUserRole, LoginCredentials } from '@/types'
 
-// Wired to vanity-backend: login (POST /auth/login, email-only — unlike
-// Scolaris, Vanity staff have no separate username), forgot/reset password,
-// and the current-user + profile endpoints (GET/PATCH /auth/me).
+// Better Auth (served by vanity-backend at /api/auth/*) handles sign-in,
+// sign-out and password reset; /api/account/me returns the staff role
+// matrix and updates the profile.
+
+function authError(error: { code?: string; message?: string; status?: number }): ApiError {
+  const invalid = error.code === 'INVALID_EMAIL_OR_PASSWORD'
+  return new ApiError(
+    invalid ? 'Identifiants invalides.' : (error.message ?? 'Une erreur est survenue.'),
+    error.status ?? 0,
+    error.code,
+  )
+}
 
 interface BackendRole {
   id: string
@@ -17,7 +27,6 @@ interface BackendUser {
   lastName: string | null
   email: string
   status: 'ACTIVE' | 'SUSPENDED'
-  permissions?: string[]
   avatar?: string | null
   createdAt?: string
   roleId: string | null
@@ -35,7 +44,6 @@ function mapUser(u: BackendUser): AuthUser {
     firstName: u.firstName ?? '',
     lastName: u.lastName ?? '',
     role: mapRole(u.roleRef),
-    permissions: u.permissions ?? [],
     avatar: u.avatar ?? undefined,
     status: u.status,
     createdAt: u.createdAt ?? new Date().toISOString(),
@@ -51,42 +59,55 @@ export interface UpdateProfilePayload {
 
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const res = await apiFetch<{ token: string; user: BackendUser }>('/auth/login', {
-      method: 'POST',
-      body: { email: credentials.email, password: credentials.password },
-    })
-    if (!res.user.roleRef) {
+    let token: string | null = null
+    const onSuccess = (ctx: { response: Response }) => {
+      token = ctx.response.headers.get('set-auth-token')
+    }
+    const { error } = await authClient.signIn.email(
+      { email: credentials.email, password: credentials.password },
+      { onSuccess },
+    )
+    if (error) throw authError(error)
+    if (!token) throw new Error('Réponse inattendue du serveur.')
+
+    setAuthToken(token)
+    const user = await apiFetch<BackendUser>('/account/me')
+    if (!user.roleRef) {
+      await authClient.signOut().catch(() => undefined)
+      setAuthToken(null)
       throw new Error('Accès réservé aux comptes du tableau de bord.')
     }
-    setAuthToken(res.token)
-    return { user: mapUser(res.user), token: res.token }
+    return { user: mapUser(user), token }
   },
 
   logout: async (): Promise<void> => {
-    // Stateless JWT — nothing to invalidate server-side; just drop the token.
+    await authClient.signOut().catch(() => undefined)
     setAuthToken(null)
   },
 
-  forgotPassword: (email: string) =>
-    apiFetch<{ ok: boolean }>('/auth/forgot-password', {
-      method: 'POST',
-      body: { email },
-    }),
+  forgotPassword: async (email: string) => {
+    const { error } = await authClient.requestPasswordReset({
+      email,
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) throw authError(error)
+    return { ok: true }
+  },
 
-  resetPassword: (token: string, password: string) =>
-    apiFetch<{ ok: boolean }>('/auth/reset-password', {
-      method: 'POST',
-      body: { token, password },
-    }),
+  resetPassword: async (token: string, password: string) => {
+    const { error } = await authClient.resetPassword({ newPassword: password, token })
+    if (error) throw authError(error)
+    return { ok: true }
+  },
 
   me: async (token: string): Promise<AuthUser> => {
     setAuthToken(token)
-    const user = await apiFetch<BackendUser>('/auth/me')
+    const user = await apiFetch<BackendUser>('/account/me')
     return mapUser(user)
   },
 
   updateProfile: async (payload: UpdateProfilePayload): Promise<AuthUser> => {
-    const user = await apiFetch<BackendUser>('/auth/me', {
+    const user = await apiFetch<BackendUser>('/account/me', {
       method: 'PATCH',
       body: payload,
     })

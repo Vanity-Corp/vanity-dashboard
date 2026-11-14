@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 // Requires auth, then defense-in-depth beyond the sidebar hiding a link: a
 // user who types a URL for a section their role can't view is bounced back
 // to the dashboard home, mirroring the sidebar's canViewSection check and
-// the backend's PermissionsGuard @Section enforcement.
+// the backend's SectionGuard enforcement.
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, user } = useAuthStore()
   const location = useLocation()
@@ -19,7 +19,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   const section = sectionForPath(location.pathname)
-  if (section && !user.permissions.includes('*')) {
+  if (section) {
     const access = user.role?.sections.find((s) => s.section === section)
     const canView = !!(access?.canView || access?.canEdit)
     if (!canView && location.pathname !== '/dashboard') {

@@ -67,10 +67,8 @@ export function AppSidebar() {
     return location.pathname.startsWith(href)
   }
 
-  // The "*" super-permission bypasses the section matrix entirely.
   const canViewSection = (section: string) => {
     if (!user) return false
-    if (user.permissions.includes('*')) return true
     const access = user.role?.sections.find((s) => s.section === section)
     return !!(access?.canView || access?.canEdit)
   }

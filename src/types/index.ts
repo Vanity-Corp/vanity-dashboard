@@ -16,10 +16,6 @@ export interface AuthUser {
   firstName: string
   lastName: string
   role: AuthUserRole | null
-  // Granular RBAC permissions from the backend (e.g. "pages.write",
-  // "settings.manage"), stored independently of role. `["*"]` is the
-  // super-permission (admin).
-  permissions: string[]
   avatar?: string
   status: 'ACTIVE' | 'SUSPENDED'
   createdAt: string
@@ -50,7 +46,6 @@ export interface Role {
   name: string
   description?: string | null
   isSystem: boolean
-  permissions: string[]
   sections: RoleSectionAccess[]
   _count?: { users: number }
   createdAt: string
@@ -61,7 +56,6 @@ export interface RolePayload {
   name: string
   description?: string
   sections: RoleSectionAccess[]
-  permissions: string[]
 }
 
 // ============================================================
@@ -74,7 +68,6 @@ export interface StaffMember {
   lastName: string | null
   email: string
   status: 'ACTIVE' | 'SUSPENDED'
-  permissions: string[]
   roleId: string | null
   roleRef: { id: string; name: string } | null
   lastLoginAt: string | null
@@ -86,7 +79,6 @@ export interface CreateStaffPayload {
   lastName: string
   email: string
   roleId: string
-  permissions?: string[]
 }
 
 export interface UpdateStaffPayload {
@@ -94,7 +86,6 @@ export interface UpdateStaffPayload {
   lastName?: string
   email?: string
   roleId?: string
-  permissions?: string[]
   status?: 'ACTIVE' | 'SUSPENDED'
 }
 
@@ -214,6 +205,9 @@ export interface Article {
   updatedAt: string
 }
 
+export type PortfolioCategory =
+  | 'VIDEO' | 'GRAPHISME' | 'SHOOTING' | 'SITE_WEB' | 'STRATEGIE' | 'RESEAUX_SOCIAUX'
+
 export interface PortfolioProject {
   id: string
   title: string
@@ -224,6 +218,13 @@ export interface PortfolioProject {
   gallery: string[]
   description?: string | null
   sortOrder: number
+  category: PortfolioCategory
+  videoUrl?: string | null
+  year?: number | null
+  services: string[]
+  need?: string | null
+  approach?: string | null
+  result?: string | null
   createdAt: string
   updatedAt: string
 }

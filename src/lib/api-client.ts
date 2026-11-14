@@ -1,14 +1,18 @@
-// Thin fetch wrapper for vanity-backend (NestJS). Attaches the admin JWT (set
-// by the auth store on login / rehydrate) and normalises errors. Routes live
-// under /api. Ported from Scolaris_dashboard's api-client.ts pattern.
+// Thin fetch wrapper for vanity-backend (NestJS). Attaches the Better Auth
+// bearer token (set by the auth store on login / rehydrate) and normalises
+// errors. Routes live under /api.
 
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 // The token lives here (set by auth.store) rather than being imported from the
 // store, to avoid a circular dependency (store → auth.service → api-client).
+// Also read by lib/auth-client.ts's bearer plugin config.
 let authToken: string | null = null
 export function setAuthToken(token: string | null) {
   authToken = token
+}
+export function getAuthToken(): string | null {
+  return authToken
 }
 
 // A 401 on an AUTHENTICATED request means the token is invalid/expired (e.g.

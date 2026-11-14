@@ -22,7 +22,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { rolesService } from '@/services/roles.service'
 import type { Role, RoleSectionAccess } from '@/types'
 import { NAV_SECTIONS } from '@/lib/nav-sections'
-import { ALL_PERMISSIONS } from '@/lib/permissions'
 import { ApiError } from '@/lib/api-client'
 
 type SectionMatrix = Record<string, { canView: boolean; canEdit: boolean }>
@@ -51,7 +50,6 @@ export function RolesSettings() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [matrix, setMatrix] = useState<SectionMatrix>(emptyMatrix())
-  const [permissions, setPermissions] = useState<string[]>([])
 
   const { data: roles, isLoading } = useQuery({
     queryKey: ['roles'],
@@ -63,7 +61,6 @@ export function RolesSettings() {
     setName('')
     setDescription('')
     setMatrix(emptyMatrix())
-    setPermissions([])
     setDialogOpen(true)
   }
 
@@ -72,7 +69,6 @@ export function RolesSettings() {
     setName(role.name)
     setDescription(role.description ?? '')
     setMatrix(matrixFromRole(role))
-    setPermissions(role.permissions)
     setDialogOpen(true)
   }
 
@@ -85,17 +81,12 @@ export function RolesSettings() {
     })
   }
 
-  const togglePermission = (p: string) => {
-    setPermissions((list) => (list.includes(p) ? list.filter((x) => x !== p) : [...list, p]))
-  }
-
   const saveMutation = useMutation({
     mutationFn: () => {
       const payload = {
         name: name.trim(),
         description: description.trim() || undefined,
         sections: matrixToSections(matrix),
-        permissions,
       }
       return editing ? rolesService.update(editing.id, payload) : rolesService.create(payload)
     },
@@ -127,8 +118,8 @@ export function RolesSettings() {
           <div>
             <CardTitle>Rôles</CardTitle>
             <CardDescription>
-              Chaque rôle contrôle les sections visibles du tableau de bord (lecture
-              / modification) et un jeu de permissions par défaut.
+              Chaque rôle contrôle les sections visibles du tableau de bord
+              (lecture / modification).
             </CardDescription>
           </div>
           <Button size="sm" onClick={openCreate}>
@@ -218,7 +209,7 @@ export function RolesSettings() {
           <DialogHeader>
             <DialogTitle>{editing ? 'Modifier le rôle' : 'Nouveau rôle'}</DialogTitle>
             <DialogDescription>
-              Sections visibles et permissions par défaut de ce rôle.
+              Sections visibles de ce rôle.
             </DialogDescription>
           </DialogHeader>
 
@@ -260,45 +251,6 @@ export function RolesSettings() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Permissions par défaut</Label>
-              <label className="flex items-center justify-between gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
-                <span>
-                  <span className="font-medium">Super-permission</span>
-                  <span className="block text-xs text-muted-foreground">
-                    Accès total pour les membres créés avec ce rôle — outrepasse
-                    la matrice de sections ci-dessus.
-                  </span>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={permissions.includes('*')}
-                  onChange={() => togglePermission('*')}
-                />
-              </label>
-              <div
-                className={
-                  'grid gap-2 sm:grid-cols-2 rounded-md border p-3' +
-                  (permissions.includes('*') ? ' opacity-50 pointer-events-none' : '')
-                }
-              >
-                {ALL_PERMISSIONS.map((p) => (
-                  <label key={p} className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={permissions.includes(p)}
-                      onChange={() => togglePermission(p)}
-                    />
-                    <code className="text-xs">{p}</code>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Appliquées aux nouveaux membres créés avec ce rôle ; modifiables
-                ensuite individuellement pour chaque membre.
-              </p>
             </div>
           </div>
 
