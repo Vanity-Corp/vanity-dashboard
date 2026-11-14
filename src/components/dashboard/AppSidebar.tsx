@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, Images, Boxes, Building2, Users2,
@@ -14,6 +15,7 @@ import { useAuthStore } from '@/store/auth.store'
 import { getInitials } from '@/lib/utils'
 import { ModeToggle } from '@/components/mode-toggle'
 import { useBranding } from '@/hooks/use-branding'
+import { AdminProfileDialog } from '@/components/dashboard/AdminProfileDialog'
 
 // Grouped navigation for the Vanity dashboard. `section` matches
 // lib/nav-sections.ts / the backend's NAV_SECTIONS — an item is hidden
@@ -61,6 +63,7 @@ export function AppSidebar() {
   const location = useLocation()
   const { user, logout } = useAuthStore()
   const { data: branding } = useBranding()
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard'
@@ -133,7 +136,12 @@ export function AppSidebar() {
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="h-auto py-2" tooltip="Profil">
+            <SidebarMenuButton
+              size="lg"
+              className="h-auto py-2"
+              tooltip="Profil"
+              onClick={() => setProfileOpen(true)}
+            >
               <Avatar className="size-8 shrink-0">
                 {user?.avatar ? <AvatarImage src={user.avatar} alt="" /> : null}
                 <AvatarFallback className="text-xs">
@@ -165,6 +173,7 @@ export function AppSidebar() {
       </SidebarFooter>
 
       <SidebarRail />
+      <AdminProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
     </Sidebar>
   )
 }

@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ResourceCrudPage } from '@/components/shared/ResourceCrudPage'
 import { ImageUploadField } from '@/components/shared/ImageUploadField'
-import { RichTextField } from '@/components/shared/RichTextField'
 import { articlesService } from '@/services/articles.service'
 import { PERMISSIONS } from '@/lib/permissions'
 import { slugify } from '@/lib/utils'
@@ -16,12 +15,25 @@ interface ArticleForm {
   slug: string
   excerpt: string
   coverImageUrl: string
+  // Markdown — rendered on corp-site with Next.js's native remark/rehype
+  // pipeline. Plain textarea on purpose, no WYSIWYG/HTML output here.
   content: string
   status: ArticleStatus
+  // Undefined (not ''), so JSON.stringify drops the key entirely rather
+  // than sending an empty string into the backend's z.coerce.date().
+  publishedAt: string | undefined
+  seoMetaTitle: string
+  seoMetaDescription: string
+  seoOgImageUrl: string
 }
 
 const emptyForm: ArticleForm = {
   title: '', slug: '', excerpt: '', coverImageUrl: '', content: '', status: 'DRAFT',
+  publishedAt: undefined, seoMetaTitle: '', seoMetaDescription: '', seoOgImageUrl: '',
+}
+
+function todayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10)
 }
 
 export function ArticlesPage() {
@@ -43,6 +55,9 @@ export function ArticlesPage() {
       toFormState={(a) => ({
         title: a.title, slug: a.slug, excerpt: a.excerpt ?? '', coverImageUrl: a.coverImageUrl ?? '',
         content: a.content ?? '', status: a.status,
+        publishedAt: a.publishedAt ? a.publishedAt.slice(0, 10) : undefined,
+        seoMetaTitle: a.seoMetaTitle ?? '', seoMetaDescription: a.seoMetaDescription ?? '',
+        seoOgImageUrl: a.seoOgImageUrl ?? '',
       })}
       columns={[
         { header: 'Titre', render: (a) => <span className="font-medium">{a.title}</span> },
@@ -83,18 +98,68 @@ export function ArticlesPage() {
             onChange={(coverImageUrl) => setForm({ ...form, coverImageUrl })}
           />
           <div className="space-y-2">
-            <Label>Contenu</Label>
-            <RichTextField value={form.content} onChange={(content) => setForm({ ...form, content })} />
+            <Label>Contenu (Markdown)</Label>
+            <Textarea
+              value={form.content}
+              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              className="min-h-56 font-mono text-sm"
+              placeholder="## Titre&#10;&#10;Texte en **markdown**…"
+            />
           </div>
-          <div className="space-y-2">
-            <Label>Statut</Label>
-            <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as ArticleStatus })}>
-              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DRAFT">Brouillon</SelectItem>
-                <SelectItem value="PUBLISHED">Publié</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Statut</Label>
+              <Select
+                value={form.status}
+                onValueChange={(v) => {
+                  const status = v as ArticleStatus
+                  setForm({
+                    ...form,
+                    status,
+                    publishedAt: status === 'PUBLISHED' ? (form.publishedAt ?? todayIsoDate()) : form.publishedAt,
+                  })
+                }}
+              >
+                <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DRAFT">Brouillon</SelectItem>
+                  <SelectItem value="PUBLISHED">Publié</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Date de publication</Label>
+              <Input
+                type="date"
+                value={form.publishedAt ?? ''}
+                onChange={(e) => setForm({ ...form, publishedAt: e.target.value || undefined })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 rounded-md border p-3">
+            <p className="text-sm font-medium text-muted-foreground">SEO</p>
+            <div className="space-y-2">
+              <Label>Titre SEO</Label>
+              <Input
+                value={form.seoMetaTitle}
+                onChange={(e) => setForm({ ...form, seoMetaTitle: e.target.value })}
+                placeholder={form.title}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description SEO</Label>
+              <Textarea
+                value={form.seoMetaDescription}
+                onChange={(e) => setForm({ ...form, seoMetaDescription: e.target.value })}
+                placeholder={form.excerpt}
+              />
+            </div>
+            <ImageUploadField
+              label="Image de partage (OG)"
+              value={form.seoOgImageUrl}
+              onChange={(seoOgImageUrl) => setForm({ ...form, seoOgImageUrl })}
+            />
           </div>
         </>
       )}

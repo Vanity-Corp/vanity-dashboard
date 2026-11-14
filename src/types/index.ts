@@ -201,6 +201,9 @@ export interface Article {
   content?: string | null
   status: ArticleStatus
   publishedAt?: string | null
+  seoMetaTitle?: string | null
+  seoMetaDescription?: string | null
+  seoOgImageUrl?: string | null
   createdAt: string
   updatedAt: string
 }
