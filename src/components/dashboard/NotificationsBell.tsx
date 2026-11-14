@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { submissionsService } from '@/services/submissions.service'
 import { usePermissions } from '@/hooks/use-permissions'
+import { useSubmissionsStream } from '@/hooks/use-submissions-stream'
 import { PERMISSIONS } from '@/lib/permissions'
 import { formatRelativeTime } from '@/lib/utils'
 import type { Submission, SubmissionType } from '@/types'
@@ -31,8 +32,12 @@ export function NotificationsBell() {
     queryKey: ['submissions', 'ALL'],
     queryFn: () => submissionsService.list(),
     enabled,
-    refetchInterval: 30_000,
+    // Safety net only — real-time push below is the primary mechanism, this
+    // just covers the (rare) case the SSE connection is down.
+    refetchInterval: 120_000,
   })
+
+  useSubmissionsStream(enabled)
 
   const markReadMutation = useMutation({
     mutationFn: (id: string) => submissionsService.update(id, { read: true }),
