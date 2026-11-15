@@ -288,7 +288,7 @@ export function MembersPage() {
           if (!open) setTempPassword(null)
         }}
       >
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Modifier le membre' : 'Nouveau membre'}</DialogTitle>
           </DialogHeader>

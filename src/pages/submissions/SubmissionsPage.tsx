@@ -5,7 +5,7 @@ import {
   type ColumnDef, type RowSelectionState,
 } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import { Search, MailOpen, Mail, Eye } from 'lucide-react'
+import { Search, MailOpen, Mail, Eye, MoreHorizontal, MailCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
@@ -239,9 +242,34 @@ export function SubmissionsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon-sm" title="Voir le détail" onClick={() => openSubmission(s)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon-sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openSubmission(s)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Voir le détail
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateMutation.mutate({ id: s.id, payload: { read: !s.read } })}
+                            >
+                              {s.read ? (
+                                <>
+                                  <Mail className="h-4 w-4 mr-2" />
+                                  Marquer non lu
+                                </>
+                              ) : (
+                                <>
+                                  <MailCheck className="h-4 w-4 mr-2" />
+                                  Marquer lu
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   )
@@ -255,7 +283,7 @@ export function SubmissionsPage() {
       </CardContent>
 
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {viewing && <Badge variant="outline">{TYPE_LABELS[viewing.type]}</Badge>}

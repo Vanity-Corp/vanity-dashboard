@@ -32,9 +32,11 @@ export function NotificationsBell() {
     queryKey: ['submissions', 'ALL'],
     queryFn: () => submissionsService.list(),
     enabled,
-    // Safety net only — real-time push below is the primary mechanism, this
-    // just covers the (rare) case the SSE connection is down.
-    refetchInterval: 120_000,
+    // Safety net — real-time push below is the primary mechanism when it
+    // can connect, but SSE over HTTP/3 hangs in some network environments
+    // (observed: QUIC/UDP blocked), so this interval needs to be short
+    // enough to feel reasonably live on its own, not just a rare fallback.
+    refetchInterval: 15_000,
   })
 
   useSubmissionsStream(enabled)

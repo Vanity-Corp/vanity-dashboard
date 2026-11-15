@@ -14,6 +14,11 @@ export function DashboardPage() {
     queryKey: ['submissions', 'unread-counts'],
     queryFn: submissionsService.unreadCounts,
     enabled: canSeeSubmissions,
+    // Same safety-net principle as NotificationsBell's refetchInterval — this
+    // query also benefits from the SSE-triggered ['submissions'] invalidation
+    // when that connection is up, but had no fallback at all before this,
+    // so it went stale indefinitely on networks where SSE can't connect.
+    refetchInterval: 15_000,
   })
 
   const totalUnread = Object.values(unread ?? {}).reduce((sum, n) => sum + n, 0)
