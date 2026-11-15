@@ -101,6 +101,10 @@
   * {
     @apply border-border;
   }
+  html,
+  body {
+    @apply overscroll-y-none;
+  }
   body {
     @apply bg-background text-foreground;
   }
