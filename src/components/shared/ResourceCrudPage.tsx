@@ -15,7 +15,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@/components/ui/card'
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
@@ -185,16 +185,16 @@ export function ResourceCrudPage<T extends { id: string }, TForm>({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>{title}</CardTitle>
-            {description && <CardDescription>{description}</CardDescription>}
-          </div>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          {description && <CardDescription>{description}</CardDescription>}
           <Can permission={writePermission}>
-            <Button size="sm" onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" />
-              {createLabel}
-            </Button>
+            <CardAction>
+              <Button size="sm" onClick={openCreate}>
+                <Plus className="h-4 w-4 mr-2" />
+                {createLabel}
+              </Button>
+            </CardAction>
           </Can>
         </CardHeader>
         <CardContent className="space-y-4">
