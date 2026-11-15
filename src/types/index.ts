@@ -245,10 +245,15 @@ export interface Testimonial {
   updatedAt: string
 }
 
+export type PricingCategory = 'AUDIO' | 'FILMING' | 'TURNKEY'
+
 export interface PricingPackage {
   id: string
+  category: PricingCategory
   title: string
+  description?: string | null
   price?: number | null
+  pricePrefix?: string | null
   features: string[]
   highlighted: boolean
   sortOrder: number

@@ -1,22 +1,37 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ResourceCrudPage } from '@/components/shared/ResourceCrudPage'
 import { pricingService } from '@/services/pricing.service'
 import { PERMISSIONS } from '@/lib/permissions'
-import type { PricingPackage } from '@/types'
+import type { PricingPackage, PricingCategory } from '@/types'
+
+const CATEGORY_LABELS: Record<PricingCategory, string> = {
+  AUDIO: 'Audio',
+  FILMING: 'Tournage',
+  TURNKEY: 'Clé en main',
+}
 
 interface PricingForm {
+  category: PricingCategory
   title: string
+  description: string
   price: number | undefined
+  pricePrefix: string
   features: string[]
   highlighted: boolean
   sortOrder: number
 }
 
-const emptyForm: PricingForm = { title: '', price: undefined, features: [], highlighted: false, sortOrder: 0 }
+const emptyForm: PricingForm = {
+  category: 'AUDIO', title: '', description: '', price: undefined, pricePrefix: '',
+  features: [], highlighted: false, sortOrder: 0,
+}
 
 export function PricingPage() {
   return (
@@ -33,27 +48,60 @@ export function PricingPage() {
       isFormValid={(f) => !!f.title.trim()}
       getRowName={(p) => p.title}
       toFormState={(p) => ({
-        title: p.title, price: p.price ?? undefined, features: p.features,
-        highlighted: p.highlighted, sortOrder: p.sortOrder,
+        category: p.category, title: p.title, description: p.description ?? '',
+        price: p.price ?? undefined, pricePrefix: p.pricePrefix ?? '',
+        features: p.features, highlighted: p.highlighted, sortOrder: p.sortOrder,
       })}
       columns={[
+        { header: 'Catégorie', render: (p) => <Badge variant="outline">{CATEGORY_LABELS[p.category]}</Badge> },
         { header: 'Offre', render: (p) => <span className="font-medium">{p.title}</span> },
-        { header: 'Prix', render: (p) => (p.price != null ? `${p.price} €` : '—') },
+        { header: 'Prix', render: (p) => (p.price != null ? `${p.pricePrefix ? p.pricePrefix + ' ' : ''}${p.price} €` : '—') },
         { header: 'Mise en avant', render: (p) => (p.highlighted ? 'Oui' : 'Non') },
       ]}
       renderForm={(form, setForm) => (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
+              <Label>Catégorie</Label>
+              <Select
+                value={form.category}
+                onValueChange={(v) => setForm({ ...form, category: v as PricingCategory })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(CATEGORY_LABELS) as PricingCategory[]).map((c) => (
+                    <SelectItem key={c} value={c}>{CATEGORY_LABELS[c]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Titre</Label>
               <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Prix (€)</Label>
               <Input
                 type="number"
                 value={form.price ?? ''}
                 onChange={(e) => setForm({ ...form, price: e.target.value ? Number(e.target.value) : undefined })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Préfixe du prix (optionnel)</Label>
+              <Input
+                placeholder="À partir de"
+                value={form.pricePrefix}
+                onChange={(e) => setForm({ ...form, pricePrefix: e.target.value })}
               />
             </div>
           </div>
